@@ -1,4 +1,5 @@
 module com.school.oop {
+    requires transitive javafx.graphics;
     requires javafx.controls;
     exports com.school.oop;
     exports com.school.oop.model;
