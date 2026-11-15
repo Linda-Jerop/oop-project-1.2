@@ -1,5 +1,11 @@
 package com.school.oop.ui;
 
+import com.school.oop.logic.AuthService;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.PasswordField;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,12 +34,16 @@ public class StudentSearchScreen extends BorderPane {
         setTop(createTopBar());
         setCenter(createCenterArea());
         setBottom(createStatusLabel());
+
     }
 
     // This method creates the bar with the title and the login button.
     private HBox createTopBar() {
         Label title = new Label("Campus Empty Classroom Finder");
         Button loginButton = new Button("Lecturer Login");
+
+        loginButton.setOnAction(event -> showLoginDialog());
+
         HBox bar = new HBox();
         bar.setPadding(new Insets(15));
         bar.setSpacing(10);
@@ -41,6 +51,53 @@ public class StudentSearchScreen extends BorderPane {
         bar.getChildren().addAll(title, loginButton);
         return bar;
     }
+        
+    private void showLoginDialog() {
+    Dialog<ButtonType> dialog = new Dialog<>();
+    dialog.setTitle("Lecturer Login");
+    dialog.setHeaderText("Enter your lecturer username and password");
+    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+    TextField username = new TextField();
+    username.setPromptText("Username");
+
+    PasswordField password = new PasswordField();
+    password.setPromptText("Password");
+
+    GridPane form = new GridPane();
+    form.setHgap(10);
+    form.setVgap(10);
+    form.add(new Label("Username:"), 0, 0);
+    form.add(username, 1, 0);
+    form.add(new Label("Password:"), 0, 1);
+    form.add(password, 1, 1);
+    dialog.getDialogPane().setContent(form);
+
+    var loginButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
+    loginButton.setDisable(true);
+
+    Runnable updateButton = () ->
+            loginButton.setDisable(username.getText().isBlank()
+                    || password.getText().isBlank());
+    username.textProperty().addListener((obs, oldValue, newValue) -> updateButton.run());
+    password.textProperty().addListener((obs, oldValue, newValue) -> updateButton.run());
+
+    dialog.showAndWait().ifPresent(result -> {
+        if (result == ButtonType.OK) {
+            AuthService authService = new AuthService();
+            Alert.AlertType type = authService.login(username.getText().trim(), password.getText())
+                    ? Alert.AlertType.INFORMATION
+                    : Alert.AlertType.ERROR;
+            String message = type == Alert.AlertType.INFORMATION
+                    ? "Login successful."
+                    : "Invalid username or password.";
+
+            Alert alert = new Alert(type, message);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+        }
+    });
+}
 
     // This method creates the center section with filters and a table.
     private VBox createCenterArea() {
