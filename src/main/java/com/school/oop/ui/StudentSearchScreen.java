@@ -193,7 +193,8 @@ private final ComboBox<String> buildingCombo = new ComboBox<>();
     // This method creates the building dropdown.
     private ComboBox<String> createBuildingCombo() {
         buildingCombo.getItems().addAll(
-                "Any building", "Oval Building", "STMB", "STC", "SBS", "MSB", "Central Building");
+                "Any building", "Oval Building", "STMB", "STC", "SBS", "MSB",
+                "Central Building", "Library");
         buildingCombo.setValue("Any building");
         return buildingCombo;
     }

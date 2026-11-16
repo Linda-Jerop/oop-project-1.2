@@ -50,6 +50,7 @@ public class RoomFinder {
         for (int roomNumber = 1; roomNumber <= 6; roomNumber++) {
             addClassrooms(rooms, "Central Building", "Rm " + roomNumber);
         }
+        addClassrooms(rooms, "Library", "Lib 1");
         return rooms;
     }
 
