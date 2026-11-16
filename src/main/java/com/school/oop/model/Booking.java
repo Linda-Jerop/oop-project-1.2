@@ -10,7 +10,7 @@ public class Booking {
     private LocalTime endTime;
     private String courseName;
 
-    // This constructor stores a lecturer booking.
+    // This constructor stores a Stratizen booking.
     public Booking(String roomId, DayOfWeek day, LocalTime startTime, LocalTime endTime, String courseName) {
         this.roomId = roomId;
         this.day = day;
