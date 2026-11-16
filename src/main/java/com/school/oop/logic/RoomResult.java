@@ -4,12 +4,12 @@ import com.school.oop.model.Room;
 
 public class RoomResult {
     private Room room;
-    private String freeUntil;
+    private String availability;
 
-    // This constructor stores a room and its free time.
-    public RoomResult(Room room, String freeUntil) {
+    // This constructor stores a room and its availability status.
+    public RoomResult(Room room, String availability) {
         this.room = room;
-        this.freeUntil = freeUntil;
+        this.availability = availability;
     }
 
     // This method gives the room object.
@@ -17,8 +17,8 @@ public class RoomResult {
         return room;
     }
 
-    // This method gives the free-time text.
-    public String getFreeUntil() {
-        return freeUntil;
+    // This method gives the availability status.
+    public String getAvailability() {
+        return availability;
     }
 }

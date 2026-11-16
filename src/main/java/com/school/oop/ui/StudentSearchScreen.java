@@ -11,10 +11,6 @@ import com.school.oop.logic.RoomFinder;
 import com.school.oop.logic.RoomResult;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.Locale;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -95,9 +92,7 @@ private final ComboBox<String> buildingCombo = new ComboBox<>();
     var loginButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
     loginButton.setDisable(true);
 
-    Runnable updateButton = () ->
-            loginButton.setDisable(username.getText().isBlank()
-                    || password.getText().isBlank());
+    Runnable updateButton = () -> loginButton.setDisable(username.getText().isBlank());
     username.textProperty().addListener((obs, oldValue, newValue) -> updateButton.run());
     password.textProperty().addListener((obs, oldValue, newValue) -> updateButton.run());
 
@@ -141,86 +136,54 @@ private final ComboBox<String> buildingCombo = new ComboBox<>();
 
     // This method adds the left side filter controls.
     private void addLeftFilters(GridPane grid) {
-        grid.add(createDayLabel(), 0, 0);
-        grid.add(createDayCombo(), 1, 0);
-        grid.add(createTimeLabel(), 2, 0);
-        grid.add(createTimeField(), 3, 0);
+        grid.add(createRoomTypeLabel(), 0, 0);
+        grid.add(createRoomTypeCombo(), 1, 0);
         grid.add(createCapacityLabel(), 0, 1);
         grid.add(createCapacityField(), 1, 1);
-        grid.add(createRoomTypeLabel(), 2, 1);
-        grid.add(createRoomTypeCombo(), 3, 1);
     }
 
     // This method adds the right side filter controls; and connects each button to a room search.
-private void addRightFilters(GridPane grid) {
-    grid.add(createBuildingLabel(), 4, 0);
-    grid.add(createBuildingCombo(), 5, 0);
+    private void addRightFilters(GridPane grid) {
+        grid.add(createBuildingLabel(), 2, 0);
+        grid.add(createBuildingCombo(), 3, 0);
 
-    Button freeNowButton = createButton("Free Now");
-    freeNowButton.setOnAction(event ->
-            resultsTable.setItems(FXCollections.observableArrayList(
-                    roomFinder.findFreeRoomsNow())));
-    grid.add(freeNowButton, 4, 1);
-
-    Button searchButton = createButton("Search");
-    searchButton.setOnAction(event -> searchRooms());
-    grid.add(searchButton, 5, 1);
-}
-
-// Validate the filters, search for rooms, and display the results.
-private void searchRooms() {
-    if (dayCombo.getValue() == null || timeField.getText().isBlank()) {
-        new Alert(Alert.AlertType.WARNING, "Select a day and enter a time.").showAndWait();
-        return;
+        Button searchButton = createButton("Search Rooms");
+        searchButton.setOnAction(event -> searchRooms());
+        grid.add(searchButton, 3, 1);
     }
 
-    try {
-        DayOfWeek day = DayOfWeek.valueOf(dayCombo.getValue().toUpperCase(Locale.ROOT));
-        LocalTime time = LocalTime.parse(timeField.getText().trim());
-        int minimumCapacity = capacityField.getText().isBlank()
-                ? 0
-                : Integer.parseInt(capacityField.getText().trim());
-
-        String building = buildingCombo.getValue();
-        if (building == null || "Any".equals(building)) {
-            building = "";
+    // Validate inventory filters and show matching rooms without claiming schedule availability.
+    private void searchRooms() {
+        int minimumCapacity;
+        try {
+            minimumCapacity = capacityField.getText().isBlank()
+                    ? 1
+                    : Integer.parseInt(capacityField.getText().trim());
+        } catch (NumberFormatException ex) {
+            new Alert(Alert.AlertType.ERROR, "Enter a whole-number capacity.").showAndWait();
+            return;
         }
 
         String roomType = roomTypeCombo.getValue();
-        if (roomType == null || "Any".equals(roomType)) {
+        int maximumCapacity = "Lab".equals(roomType) ? 42 : 63;
+        if (minimumCapacity < 1 || minimumCapacity > maximumCapacity) {
+            new Alert(Alert.AlertType.WARNING,
+                    "Capacity must be between 1 and " + maximumCapacity
+                            + " for the selected room type.").showAndWait();
+            return;
+        }
+
+        String building = buildingCombo.getValue();
+        if (building == null || "Any building".equals(building)) {
+            building = "";
+        }
+        if ("Either".equals(roomType)) {
             roomType = "";
         }
 
         resultsTable.setItems(FXCollections.observableArrayList(
-                roomFinder.findFreeRooms(day, time, building, minimumCapacity, roomType)));
-    } catch (DateTimeParseException | NumberFormatException ex) {
-        new Alert(Alert.AlertType.ERROR,
-                "Enter time as HH:mm and capacity as a whole number.").showAndWait();
+                roomFinder.searchRooms(building, minimumCapacity, roomType)));
     }
-}
-
-    // This method creates the label for the day field.
-    private Label createDayLabel() {
-        return new Label("Day");
-    }
-
-// Configure and return the day filter used by the search handler.
-private ComboBox<String> createDayCombo() {
-    dayCombo.setPromptText("Select day");
-    dayCombo.getItems().addAll("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
-    return dayCombo;
-}
-
-    // This method creates the label for the time field.
-    private Label createTimeLabel() {
-        return new Label("Time");
-    }
-
-    // This method creates the label for the time field and return the time filter used by the search handler.
-private TextField createTimeField() {
-    timeField.setPromptText("e.g. 14:30");
-    return timeField;
-}
 
     // This method creates the label for the building field.
     private Label createBuildingLabel() {
@@ -229,10 +192,11 @@ private TextField createTimeField() {
 
     // This method creates the building dropdown.
     private ComboBox<String> createBuildingCombo() {
-    buildingCombo.setPromptText("Any");
-    buildingCombo.getItems().addAll("Any", "Main Building", "Science Block", "Engineering Block");
-    return buildingCombo;
-}
+        buildingCombo.getItems().addAll(
+                "Any building", "Oval Building", "STMB", "STC", "SBS", "MSB", "Central Building");
+        buildingCombo.setValue("Any building");
+        return buildingCombo;
+    }
 
     // This method creates the label for the capacity field.
     private Label createCapacityLabel() {
@@ -241,9 +205,11 @@ private TextField createTimeField() {
 
     // This method creates the capacity input box and return the capacity filter used by the search handler.
     private TextField createCapacityField() {
-    capacityField.setPromptText("20");
-    return capacityField;
-}
+        capacityField.setPromptText("1 to 63");
+        capacityField.setTextFormatter(new TextFormatter<String>(
+                change -> change.getControlNewText().matches("\\d*") ? change : null));
+        return capacityField;
+    }
 
     // This method creates the label for the room type.
     private Label createRoomTypeLabel() {
@@ -251,11 +217,13 @@ private TextField createTimeField() {
     }
 
     // This method creates the room type dropdown and return the room-type filter used by the search handler.
-private ComboBox<String> createRoomTypeCombo() {
-    roomTypeCombo.setPromptText("Any");
-    roomTypeCombo.getItems().addAll("Any", "Lecture", "Lab", "Lecture Theatre");
-    return roomTypeCombo;
-}
+    private ComboBox<String> createRoomTypeCombo() {
+        roomTypeCombo.getItems().addAll("Lab", "Classroom", "Either");
+        roomTypeCombo.setValue("Either");
+        roomTypeCombo.valueProperty().addListener((observable, oldValue, newValue) ->
+                capacityField.setPromptText("1 to " + ("Lab".equals(newValue) ? 42 : 63)));
+        return roomTypeCombo;
+    }
 
     // This method creates a simple button.
     private Button createButton(String text) {
@@ -263,39 +231,39 @@ private ComboBox<String> createRoomTypeCombo() {
         return button;
     }
 
-    // This method creates the table showing rooms.
-    // Defines how each result supplies the value shown in each table column.
-private TableView<RoomResult> createTable() {
-    TableColumn<RoomResult, String> roomColumn = new TableColumn<>("Room");
-    roomColumn.setCellValueFactory(cell ->
-            new ReadOnlyStringWrapper(cell.getValue().getRoom().getRoomId()));
+    // Define how each room result supplies the value shown in the table.
+    private TableView<RoomResult> createTable() {
+        TableColumn<RoomResult, String> roomColumn = new TableColumn<>("Room");
+        roomColumn.setCellValueFactory(cell ->
+                new ReadOnlyStringWrapper(cell.getValue().getRoom().getRoomId()));
 
-    TableColumn<RoomResult, String> buildingColumn = new TableColumn<>("Building");
-    buildingColumn.setCellValueFactory(cell ->
-            new ReadOnlyStringWrapper(cell.getValue().getRoom().getBuilding()));
+        TableColumn<RoomResult, String> buildingColumn = new TableColumn<>("Building");
+        buildingColumn.setCellValueFactory(cell ->
+                new ReadOnlyStringWrapper(cell.getValue().getRoom().getBuilding()));
 
-    TableColumn<RoomResult, String> capacityColumn = new TableColumn<>("Capacity");
-    capacityColumn.setCellValueFactory(cell ->
-            new ReadOnlyStringWrapper(
-                    Integer.toString(cell.getValue().getRoom().getCapacity())));
+        TableColumn<RoomResult, String> capacityColumn = new TableColumn<>("Max Capacity");
+        capacityColumn.setCellValueFactory(cell ->
+                new ReadOnlyStringWrapper(
+                        Integer.toString(cell.getValue().getRoom().getCapacity())));
 
-    TableColumn<RoomResult, String> typeColumn = new TableColumn<>("Type");
-    typeColumn.setCellValueFactory(cell ->
-            new ReadOnlyStringWrapper(cell.getValue().getRoom().getType()));
+        TableColumn<RoomResult, String> typeColumn = new TableColumn<>("Type");
+        typeColumn.setCellValueFactory(cell ->
+                new ReadOnlyStringWrapper(cell.getValue().getRoom().getType()));
 
-    TableColumn<RoomResult, String> freeUntilColumn = new TableColumn<>("Free Until");
-    freeUntilColumn.setCellValueFactory(cell ->
-            new ReadOnlyStringWrapper(cell.getValue().getFreeUntil()));
+        TableColumn<RoomResult, String> availabilityColumn = new TableColumn<>("Availability");
+        availabilityColumn.setCellValueFactory(cell ->
+                new ReadOnlyStringWrapper(cell.getValue().getAvailability()));
 
-    resultsTable.getColumns().addAll(
-            roomColumn, buildingColumn, capacityColumn, typeColumn, freeUntilColumn);
-    resultsTable.setPlaceholder(new Label("No rooms available yet"));
-    return resultsTable;
-}
+        resultsTable.getColumns().addAll(
+                roomColumn, buildingColumn, capacityColumn, typeColumn, availabilityColumn);
+        resultsTable.setPlaceholder(new Label("No rooms match these filters"));
+        return resultsTable;
+    }
 
     // This method creates the status label at the bottom.
     private Label createStatusLabel() {
-        Label label = new Label("Waiting for search");
+        Label label = new Label(
+                "Room inventory is local sample data; live availability is not connected yet.");
         label.setPadding(new Insets(10));
         return label;
     }
