@@ -1,0 +1,344 @@
+/* Strathmore University colours: royal blue, navy, gold and red on white. */
+.root {
+    -strath-navy: #0A2463;
+    -strath-blue: #1F3C9E;
+    -strath-gold: #E4B43A;
+    -strath-red: #B5121B;
+    -strath-hover-blue: #2F5FD8;
+    -strath-hover-light: #CFE0FF;
+    -strath-background: #F2F4FA;
+    -strath-border: #C7CFE4;
+    -fx-font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", sans-serif;
+    -fx-font-size: 14px;
+    -fx-focus-color: -strath-gold;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: -strath-background;
+}
+
+/* ---------- Login screen ---------- */
+.login-root {
+    -fx-background-color: linear-gradient(to bottom right, -strath-navy, -strath-blue);
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 36;
+    -fx-border-color: -strath-gold;
+    -fx-border-width: 0 0 5 0;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 24, 0.2, 0, 6);
+}
+
+.login-university {
+    -fx-text-fill: -strath-blue;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.login-welcome {
+    -fx-text-fill: -strath-navy;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.login-subtitle {
+    -fx-text-fill: -strath-red;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.login-error {
+    -fx-text-fill: -strath-red;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+
+.login-button, .login-admin {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 12 20 12 20;
+    -fx-cursor: hand;
+}
+
+.login-button {
+    -fx-background-color: -strath-blue;
+    -fx-text-fill: white;
+}
+
+.login-admin {
+    -fx-background-color: -strath-gold;
+    -fx-text-fill: -strath-navy;
+}
+
+/* ---------- Header ---------- */
+.header {
+    -fx-background-color: linear-gradient(to right, -strath-navy, -strath-blue);
+    -fx-border-color: transparent transparent -strath-gold transparent;
+    -fx-border-width: 0 0 4 0;
+    -fx-padding: 16 28 16 28;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.header-subtitle {
+    -fx-text-fill: -strath-gold;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.header-welcome {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.header-welcome-name {
+    -fx-text-fill: -strath-gold;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.header-role {
+    -fx-text-fill: #C9D3F2;
+    -fx-font-size: 12px;
+}
+
+.logout-button {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* ---------- Tabs ---------- */
+.tab-pane > .tab-header-area {
+    -fx-padding: 8 24 0 24;
+}
+
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: -strath-background;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-background-color: #E1E6F5;
+    -fx-background-radius: 6 6 0 0;
+    -fx-padding: 4 18 4 18;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: white;
+    -fx-border-color: -strath-gold transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+    -fx-text-fill: -strath-navy;
+    -fx-font-weight: bold;
+}
+
+.tab-pane > .tab-content-area {
+    -fx-background-color: -strath-background;
+}
+
+/* ---------- Cards (white panels) and form labels ---------- */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: -strath-border;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(10, 36, 99, 0.12), 10, 0.1, 0, 2);
+    -fx-padding: 16;
+}
+
+.field-label {
+    -fx-text-fill: -strath-navy;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.panel-title {
+    -fx-text-fill: -strath-navy;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.selected-room {
+    -fx-text-fill: -strath-blue;
+    -fx-font-weight: bold;
+}
+
+.text-field, .combo-box-base {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: -strath-border;
+    -fx-background-color: white;
+}
+
+.combo-box-base .list-cell, .combo-box-base > .text-field {
+    -fx-background-color: transparent;
+}
+
+/* The list that opens under a dropdown. The item under the mouse and the chosen item get a light blue
+   background with dark text (the default is white text on bright blue, which is hard to read). */
+.combo-box-popup .list-cell {
+    -fx-text-fill: #0A2463;
+    -fx-padding: 6 10 6 10;
+}
+
+.combo-box-popup .list-cell:filled:hover, .combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #CFE0FF;
+    -fx-text-fill: #0A2463;
+}
+
+.hint-label {
+    -fx-text-fill: #55607A;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Buttons ---------- */
+.primary-button {
+    -fx-background-color: -strath-gold;
+    -fx-text-fill: -strath-navy;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 24 8 24;
+    -fx-cursor: hand;
+}
+
+/* Hovering over a button.
+   - Buttons with WHITE text (Logout and the login buttons) get a bright blue background, the text stays white.
+   - Buttons with DARK text (gold, outlined and red ones) get a LIGHT background, so the text stays easy to read. */
+.logout-button:hover, .login-button:hover {
+    -fx-background-color: -strath-hover-blue;
+    -fx-text-fill: white;
+}
+
+.primary-button:hover, .login-admin:hover, .secondary-button:hover {
+    -fx-background-color: -strath-hover-light;
+    -fx-text-fill: -strath-navy;
+}
+
+.secondary-button:hover {
+    -fx-border-color: -strath-blue;
+}
+
+.danger-button:hover {
+    -fx-background-color: #FBD9DC;
+    -fx-text-fill: -strath-red;
+}
+
+.secondary-button {
+    -fx-background-color: white;
+    -fx-text-fill: -strath-blue;
+    -fx-font-weight: bold;
+    -fx-border-color: -strath-blue;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 7 20 7 20;
+    -fx-cursor: hand;
+}
+
+/* Outlined buttons get an outline of the same blue on hover, so no red edge is left. */
+.danger-button:hover {
+    -fx-border-color: -strath-red;
+}
+
+.danger-button {
+    -fx-background-color: white;
+    -fx-text-fill: -strath-red;
+    -fx-font-weight: bold;
+    -fx-border-color: -strath-red;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 7 20 7 20;
+    -fx-cursor: hand;
+}
+
+/* ---------- Tables ---------- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -strath-navy;
+    -fx-background-radius: 6 6 0 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: -strath-navy;
+    -fx-border-color: transparent;
+    -fx-size: 38px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER-LEFT;
+    -fx-padding: 0 0 0 9;
+}
+
+.table-row-cell {
+    -fx-cell-size: 38px;
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #E3E7F3 transparent;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #F7F9FE;
+}
+
+.table-row-cell:filled:hover {
+    -fx-background-color: #FFF6DB;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #DCE5F7;
+}
+
+.table-cell {
+    -fx-alignment: CENTER-LEFT;
+    -fx-text-fill: -strath-navy;
+    -fx-padding: 0 0 0 10;
+}
+
+/* Vacant is written in red and occupied in green. "Book" is a blue link-like word. */
+.table-cell.vacant {
+    -fx-text-fill: #E01919;
+    -fx-font-weight: bold;
+}
+
+.table-cell.occupied {
+    -fx-text-fill: #1E9E4A;
+    -fx-font-weight: bold;
+}
+
+.table-cell.book {
+    -fx-text-fill: -strath-blue;
+    -fx-font-weight: bold;
+    -fx-underline: true;
+}
+
+/* ---------- Status bar ---------- */
+.status-bar {
+    -fx-background-color: white;
+    -fx-border-color: -strath-border transparent transparent transparent;
+    -fx-padding: 8 28 8 28;
+}
+
+.status-label {
+    -fx-text-fill: -strath-navy;
+}
+
+.status-error {
+    -fx-text-fill: -strath-red;
+    -fx-font-weight: bold;
+}

@@ -1,36 +1,49 @@
 package com.school.oop.model;
 
+// A Room object stores one row of the "rooms" table.
+// The status ("Vacant" or "Occupied") is worked out when we search for rooms at a certain day and time.
 public class Room {
-    private String roomId;
+    private String roomName;
     private String building;
     private int capacity;
-    private String type;
+    private String roomType;
+    private String status;
 
-    // This constructor stores the basic room details.
-    public Room(String roomId, String building, int capacity, String type) {
-        this.roomId = roomId;
+    // This constructor stores the details of a room.
+    public Room(String roomName, String building, int capacity, String roomType, String status) {
+        this.roomName = roomName;
         this.building = building;
         this.capacity = capacity;
-        this.type = type;
+        this.roomType = roomType;
+        this.status = status;
     }
 
-    // This method gives the room ID.
-    public String getRoomId() {
-        return roomId;
+    // These getters let the table read the values. The table finds them by name, for example "roomName" -> getRoomName().
+    public String getRoomName() {
+        return roomName;
     }
 
-    // This method gives the building name.
     public String getBuilding() {
         return building;
     }
 
-    // This method gives the room capacity.
     public int getCapacity() {
         return capacity;
     }
 
-    // This method gives the type of room.
-    public String getType() {
-        return type;
+    public String getRoomType() {
+        return roomType;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    // This method gives the text for the Booking column. Only a vacant room can be booked.
+    public String getBookingAction() {
+        if (status.equals("Vacant")) {
+            return "Book";
+        }
+        return "";
     }
 }

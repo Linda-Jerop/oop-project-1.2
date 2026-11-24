@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Login.fxml: the first screen. Its controller is LoginController. -->
+<StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.school.oop.ui.LoginController" styleClass="login-root">
+
+    <!-- The white card in the middle. fx:id lets LoginController use this box. -->
+    <VBox fx:id="loginPane" styleClass="login-card" alignment="CENTER" spacing="14"
+          prefWidth="440" maxWidth="-Infinity" maxHeight="-Infinity">
+
+        <Label text="STRATHMORE UNIVERSITY" styleClass="login-university"/>
+        <Label text="Welcome, Stratizen" styleClass="login-welcome"/>
+        <Label text="Room Finder and Timetable" styleClass="login-subtitle"/>
+
+        <!-- The mock login. The ID must be six digits. The password can be anything, it is never checked. -->
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Stratizen ID" styleClass="field-label"/>
+            <TextField fx:id="stratizenIdField" promptText="6 digits, e.g. 123456"/>
+        </VBox>
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Password" styleClass="field-label"/>
+            <PasswordField fx:id="passwordField" promptText="Password"/>
+        </VBox>
+
+        <!-- This line stays empty until the login fails. Then the controller writes the reason here. -->
+        <Label fx:id="errorLabel" wrapText="true" minHeight="20" styleClass="login-error"/>
+
+        <!-- onAction="#loginAsAdmin" means: when clicked, run the method loginAsAdmin in LoginController. -->
+        <Button text="Login as Admin" onAction="#loginAsAdmin" styleClass="login-admin" maxWidth="Infinity"/>
+        <Button text="Login as Lecturer" onAction="#loginAsLecturer" styleClass="login-button" maxWidth="Infinity"/>
+        <Button text="Login as Class Rep" onAction="#loginAsClassRep" styleClass="login-button" maxWidth="Infinity"/>
+        <Button text="Login as Student" onAction="#loginAsStudent" styleClass="login-button" maxWidth="Infinity"/>
+    </VBox>
+</StackPane>
