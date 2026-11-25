@@ -35,6 +35,44 @@ public class TimetableDAO {
         }
     }
 
+    // This method changes an existing timetable entry (UPDATE). The admin uses it.
+    // The entry's id says which row to change. It gives back how many rows were changed (1 if it worked).
+    public int updateEntry(TimetableEntry entry) throws SQLException {
+        String sql = "UPDATE timetable SET class_group = ?, course_name = ?, lecturer_name = ?, day_of_week = ?, "
+                + "start_time = ?, end_time = ?, room = ? WHERE id = ?";
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, entry.getClassGroup());
+            statement.setString(2, entry.getCourseName());
+            statement.setString(3, entry.getLecturerName());
+            statement.setString(4, entry.getDayOfWeek());
+            statement.setString(5, entry.getStartTime());
+            statement.setString(6, entry.getEndTime());
+            statement.setString(7, entry.getRoom());
+            statement.setInt(8, entry.getId());
+            return statement.executeUpdate();
+        }
+    }
+
+    // This method changes a booking (UPDATE), but only if it is a booking made by this user.
+    // The room stays the same. The day, the times and the purpose can change.
+    // It gives back how many rows were changed: 1 if it worked, 0 if the booking was not theirs.
+    public int updateBooking(int id, String bookedBy, String dayOfWeek, String startTime, String endTime, String purpose)
+            throws SQLException {
+        String sql = "UPDATE timetable SET day_of_week = ?, start_time = ?, end_time = ?, course_name = ? "
+                + "WHERE id = ? AND class_group = 'Booking' AND lecturer_name = ?";
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, dayOfWeek);
+            statement.setString(2, startTime);
+            statement.setString(3, endTime);
+            statement.setString(4, purpose);
+            statement.setInt(5, id);
+            statement.setString(6, bookedBy);
+            return statement.executeUpdate();
+        }
+    }
+
     // This method deletes the entry with the given id (DELETE). The admin uses it.
     public void deleteEntry(int id) throws SQLException {
         String sql = "DELETE FROM timetable WHERE id = ?";
@@ -121,13 +159,22 @@ public class TimetableDAO {
     // This method checks if a room is free for the whole period from startTime to endTime.
     // Two periods overlap when each one starts before the other one ends.
     public boolean isRoomFree(String room, String dayOfWeek, String startTime, String endTime) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM timetable WHERE room = ? AND day_of_week = ? AND start_time < ? AND end_time > ?";
+        return isRoomFree(room, dayOfWeek, startTime, endTime, 0);
+    }
+
+    // This is the same check, but it ignores the entry with the id "ignoreId".
+    // We need it when we UPDATE an entry: the entry must not count as a clash with itself.
+    // Ids start at 1, so the id 0 (used above) ignores nothing.
+    public boolean isRoomFree(String room, String dayOfWeek, String startTime, String endTime, int ignoreId)
+            throws SQLException {
+        String sql = "SELECT COUNT(*) FROM timetable WHERE room = ? AND day_of_week = ? AND start_time < ? AND end_time > ? AND id <> ?";
         try (Connection connection = DatabaseConnection.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, room);
             statement.setString(2, dayOfWeek);
             statement.setString(3, endTime);
             statement.setString(4, startTime);
+            statement.setInt(5, ignoreId);
             try (ResultSet rows = statement.executeQuery()) {
                 rows.next();
                 int overlappingEntries = rows.getInt(1);

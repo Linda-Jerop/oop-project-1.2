@@ -62,6 +62,14 @@ public class StratizenController {
     @FXML
     private TableView<TimetableEntry> bookingsTable;
     @FXML
+    private ComboBox<String> editDayCombo;
+    @FXML
+    private ComboBox<String> editStartCombo;
+    @FXML
+    private ComboBox<String> editEndCombo;
+    @FXML
+    private TextField editPurposeField;
+    @FXML
     private Label statusLabel;
 
     // The two DAO objects are how this screen talks to MySQL.
@@ -126,6 +134,11 @@ public class StratizenController {
 
         for (String time : TimetableOptions.TIMES) {
             endTimeCombo.getItems().add(time);
+            editStartCombo.getItems().add(time);
+            editEndCombo.getItems().add(time);
+        }
+        for (String day : TimetableOptions.DAYS) {
+            editDayCombo.getItems().add(day);
         }
     }
 
@@ -143,7 +156,72 @@ public class StratizenController {
         }
     }
 
-    // This method runs when "Delete Booking" is clicked. Only the person who made the booking can delete it.
+    // This method runs when a booking is clicked (or chosen with the arrow keys) in the My Bookings table.
+    // It copies the booking into the form, so it can be changed and saved with "Update Booking".
+    @FXML
+    private void handleBookingSelected() {
+        TimetableEntry selectedBooking = bookingsTable.getSelectionModel().getSelectedItem();
+        if (selectedBooking == null) {
+            return;
+        }
+        editDayCombo.setValue(selectedBooking.getDayOfWeek());
+        editStartCombo.setValue(selectedBooking.getStartTime());
+        editEndCombo.setValue(selectedBooking.getEndTime());
+        editPurposeField.setText(selectedBooking.getCourseName());
+    }
+
+    // UPDATE: runs when "Update Booking" is clicked. Only the person who made the booking can change it.
+    @FXML
+    private void handleUpdateBooking() {
+        TimetableEntry selectedBooking = bookingsTable.getSelectionModel().getSelectedItem();
+        if (selectedBooking == null) {
+            showMessage("Click one of your bookings in the table first.", true);
+            return;
+        }
+        String day = editDayCombo.getValue();
+        String startTime = editStartCombo.getValue();
+        String endTime = editEndCombo.getValue();
+        String purpose = editPurposeField.getText().trim();
+        if (day == null || startTime == null || endTime == null || purpose.isEmpty()) {
+            showMessage("Please fill in the day, the start time, the end time and the event or purpose.", true);
+            return;
+        }
+        if (endTime.compareTo(startTime) <= 0) {
+            showMessage("The end time must be after the start time.", true);
+            return;
+        }
+        try {
+            // The booking must not clash with a class or another booking. It does not clash with itself.
+            if (!timetableDAO.isRoomFree(selectedBooking.getRoom(), day, startTime, endTime, selectedBooking.getId())) {
+                showMessage(selectedBooking.getRoom() + " is already in use on " + day + " between " + startTime
+                        + " and " + endTime + ".", true);
+                return;
+            }
+            int changedRows = timetableDAO.updateBooking(selectedBooking.getId(), UserSession.currentUserName,
+                    day, startTime, endTime, purpose);
+            if (changedRows == 0) {
+                showMessage("That booking could not be changed because it is not yours.", true);
+                return;
+            }
+            clearBookingForm();
+            loadMyBookings();
+            loadRoomTable();
+            showMessage("Updated your booking of " + selectedBooking.getRoom() + ": " + day + ", "
+                    + startTime + " - " + endTime + ", " + purpose + ".", false);
+        } catch (SQLException e) {
+            showDatabaseError(e);
+        }
+    }
+
+    // This method empties the boxes of the "Change the selected booking" form.
+    private void clearBookingForm() {
+        editDayCombo.setValue(null);
+        editStartCombo.setValue(null);
+        editEndCombo.setValue(null);
+        editPurposeField.clear();
+    }
+
+    // DELETE: runs when "Delete Booking" is clicked. Only the person who made the booking can delete it.
     @FXML
     private void handleDeleteBooking() {
         TimetableEntry selectedBooking = bookingsTable.getSelectionModel().getSelectedItem();
@@ -160,6 +238,7 @@ public class StratizenController {
             }
             loadMyBookings();
             loadRoomTable();
+            clearBookingForm();
             showMessage("Deleted your booking of " + selectedBooking.getRoom() + " on " + selectedBooking.getDayOfWeek()
                     + " (" + selectedBooking.getTimeSlot() + "). The room is vacant again.", false);
         } catch (SQLException e) {

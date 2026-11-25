@@ -119,9 +119,10 @@ public class AdminDashboardController {
         }
     }
 
-    // This method runs when "Add Entry" is clicked. It checks the form, then INSERTs a new row.
-    @FXML
-    private void handleAddEntry() {
+    // This method reads the form and checks it. If everything is fine, it gives back a TimetableEntry with the given id
+    // (we use 0 for a new entry). If something is wrong, it shows the reason in red and gives back null.
+    // The clash check ignores the entry with this id, so an entry never clashes with itself when we update it.
+    private TimetableEntry readForm(int id) {
         String classGroup = classGroupField.getText().trim();
         String courseName = courseNameField.getText().trim();
         String lecturerName = lecturerNameField.getText().trim();
@@ -133,35 +134,94 @@ public class AdminDashboardController {
         // Check 1: every box must be filled in. A ComboBox with nothing chosen gives null.
         if (classGroup.isEmpty() || courseName.isEmpty() || lecturerName.isEmpty()
                 || day == null || startTime == null || endTime == null || room == null) {
-            showMessage("Please fill in every box before adding.", true);
-            return;
+            showMessage("Please fill in every box first.", true);
+            return null;
         }
         // Check 2: the class must end after it starts. Times like "08:15" can be compared as text.
         if (endTime.compareTo(startTime) <= 0) {
             showMessage("The end time must be after the start time.", true);
-            return;
+            return null;
         }
-
         try {
             // Check 3: the room must be free at that time, so two classes never share a room.
-            if (!timetableDAO.isRoomFree(room, day, startTime, endTime)) {
+            if (!timetableDAO.isRoomFree(room, day, startTime, endTime, id)) {
                 showMessage(room + " is already in use on " + day + " between " + startTime + " and " + endTime + ".", true);
-                return;
+                return null;
             }
-            TimetableEntry newEntry = new TimetableEntry(0, classGroup, courseName, lecturerName,
-                    day, startTime, endTime, room);
+        } catch (SQLException e) {
+            showDatabaseError(e);
+            return null;
+        }
+        return new TimetableEntry(id, classGroup, courseName, lecturerName, day, startTime, endTime, room);
+    }
+
+    // CREATE: runs when "Add Entry" is clicked. It checks the form, then INSERTs a new row.
+    @FXML
+    private void handleAddEntry() {
+        TimetableEntry newEntry = readForm(0);
+        if (newEntry == null) {
+            return;
+        }
+        try {
             timetableDAO.addEntry(newEntry);
             clearForm();
             // The new class group (if it is new) joins the filter and is selected, so the new entry is visible.
-            fillFilterChoices(classGroup);
+            fillFilterChoices(newEntry.getClassGroup());
             loadEntries();
-            showMessage("Added " + courseName + " (" + classGroup + ") in " + room + " on " + day + ".", false);
+            showMessage("Added " + newEntry.getCourseName() + " (" + newEntry.getClassGroup() + ") in "
+                    + newEntry.getRoom() + " on " + newEntry.getDayOfWeek() + ".", false);
         } catch (SQLException e) {
             showDatabaseError(e);
         }
     }
 
-    // This method runs when "Delete Selected" is clicked. It removes the row chosen in the table.
+    // This method runs when a row of the table is clicked (or chosen with the arrow keys).
+    // It copies the row into the form, so the admin can change it and click "Update Entry".
+    @FXML
+    private void handleRowSelected() {
+        TimetableEntry selected = timetableTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+        classGroupField.setText(selected.getClassGroup());
+        courseNameField.setText(selected.getCourseName());
+        lecturerNameField.setText(selected.getLecturerName());
+        dayCombo.setValue(selected.getDayOfWeek());
+        startTimeCombo.setValue(selected.getStartTime());
+        endTimeCombo.setValue(selected.getEndTime());
+        roomCombo.setValue(selected.getRoom());
+        showMessage("Editing " + selected.getCourseName() + ". Change the boxes above, then click Update Entry.", false);
+    }
+
+    // UPDATE: runs when "Update Entry" is clicked. It checks the form, then UPDATEs the row that is selected in the table.
+    @FXML
+    private void handleUpdateEntry() {
+        TimetableEntry selected = timetableTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showMessage("Click a row in the table first, change the boxes, then click Update Entry.", true);
+            return;
+        }
+        TimetableEntry changedEntry = readForm(selected.getId());
+        if (changedEntry == null) {
+            return;
+        }
+        try {
+            int changedRows = timetableDAO.updateEntry(changedEntry);
+            // The class group may have been changed too, so we refresh the filter and follow the entry.
+            fillFilterChoices(changedEntry.getClassGroup());
+            loadEntries();
+            if (changedRows == 0) {
+                showMessage("That entry does not exist any more, so nothing was changed.", true);
+                return;
+            }
+            clearForm();
+            showMessage("Updated " + changedEntry.getCourseName() + " (" + changedEntry.getClassGroup() + ").", false);
+        } catch (SQLException e) {
+            showDatabaseError(e);
+        }
+    }
+
+    // DELETE: runs when "Delete Selected" is clicked. It removes the row chosen in the table.
     @FXML
     private void handleDeleteEntry() {
         TimetableEntry selected = timetableTable.getSelectionModel().getSelectedItem();
@@ -171,6 +231,7 @@ public class AdminDashboardController {
         }
         try {
             timetableDAO.deleteEntry(selected.getId());
+            clearForm();
             // If that was the last entry of its class group, the group leaves the filter and "All class groups" is selected.
             fillFilterChoices(filterCombo.getValue());
             loadEntries();
@@ -184,6 +245,7 @@ public class AdminDashboardController {
     @FXML
     private void handleClearForm() {
         clearForm();
+        timetableTable.getSelectionModel().clearSelection();
     }
 
     // This method empties every box of the form.

@@ -45,7 +45,9 @@
 
             <!-- The form. Each input becomes one column of the new row in MySQL. -->
             <VBox styleClass="card" spacing="12">
-                <Label text="Add a timetable entry" styleClass="panel-title"/>
+                <Label text="Add, change or delete a timetable entry" styleClass="panel-title"/>
+                <Label text="To change an entry: click its row in the table below, change the boxes here, then click Update Entry."
+                       styleClass="hint-label"/>
                 <HBox spacing="14">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
                         <Label text="Class group" styleClass="field-label"/>
@@ -79,6 +81,7 @@
                     </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button text="Add Entry" onAction="#handleAddEntry" styleClass="primary-button"/>
+                    <Button text="Update Entry" onAction="#handleUpdateEntry" styleClass="primary-button"/>
                     <Button text="Clear Form" onAction="#handleClearForm" styleClass="secondary-button"/>
                 </HBox>
             </VBox>
@@ -98,7 +101,7 @@
                     </VBox>
                     <Button text="Delete Selected" onAction="#handleDeleteEntry" styleClass="danger-button"/>
                 </HBox>
-                <TableView fx:id="timetableTable" VBox.vgrow="ALWAYS">
+                <TableView fx:id="timetableTable" onMouseClicked="#handleRowSelected" onKeyReleased="#handleRowSelected" VBox.vgrow="ALWAYS">
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                     </columnResizePolicy>

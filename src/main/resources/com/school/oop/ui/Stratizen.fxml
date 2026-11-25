@@ -156,7 +156,7 @@
                     <HBox styleClass="card" alignment="CENTER_LEFT" spacing="14">
                         <VBox spacing="2">
                             <Label text="My bookings" styleClass="panel-title"/>
-                            <Label text="Click one of your bookings, then click Delete Booking to free the room."
+                            <Label text="Click one of your bookings to change it or delete it."
                                    styleClass="selected-room"/>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS"/>
@@ -164,7 +164,8 @@
                     </HBox>
 
                     <VBox styleClass="card" VBox.vgrow="ALWAYS">
-                        <TableView fx:id="bookingsTable" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="bookingsTable" onMouseClicked="#handleBookingSelected" onKeyReleased="#handleBookingSelected"
+                                   VBox.vgrow="ALWAYS">
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                             </columnResizePolicy>
@@ -194,6 +195,30 @@
                                 </TableColumn>
                             </columns>
                         </TableView>
+                    </VBox>
+
+                    <!-- The form to change the selected booking. The room stays the same, the day, times and purpose can change. -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="Change the selected booking" styleClass="panel-title"/>
+                        <FlowPane hgap="14" vgap="10" rowValignment="BOTTOM">
+                            <VBox spacing="5">
+                                <Label text="Day of the week" styleClass="field-label"/>
+                                <ComboBox fx:id="editDayCombo" prefWidth="150"/>
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Start time" styleClass="field-label"/>
+                                <ComboBox fx:id="editStartCombo" prefWidth="110"/>
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="End time" styleClass="field-label"/>
+                                <ComboBox fx:id="editEndCombo" prefWidth="110"/>
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Event or purpose" styleClass="field-label"/>
+                                <TextField fx:id="editPurposeField" prefWidth="320"/>
+                            </VBox>
+                            <Button text="Update Booking" onAction="#handleUpdateBooking" styleClass="primary-button"/>
+                        </FlowPane>
                     </VBox>
                 </VBox>
             </Tab>
